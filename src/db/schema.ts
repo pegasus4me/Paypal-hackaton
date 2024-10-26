@@ -8,3 +8,6 @@ const userStream = new Schema({
   tag: String, 
   creation_date: { type: Date, default: Date.now },
 });
+
+const NewStream = mongoose.models?.Hash || mongoose.model('Hash', userStream)
+export default NewStream
