@@ -65,7 +65,6 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
 
   return (
     <Popover>
-    <Label htmlFor="duration" className='text-lg font-[family-name:var(--font-geist-sans)]'>Set your stream starting date</Label>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

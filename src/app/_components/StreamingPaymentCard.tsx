@@ -39,6 +39,8 @@ export default function StreamingPaymentCard({
   const [duration, setDuration] = useState("");
   const [receiver, setReceiver] = useState("");
   const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false)
+  // convert time in seconds 
   // const approuve = useApprouve(CONTRACT_ADDRESS, BigInt(amount))
   const [startingDate, setStartingDate] = useState<Date>();
   const [streamTag, setStreamTag] = useState<string>("");
@@ -48,22 +50,21 @@ export default function StreamingPaymentCard({
       // call the newStream function
       // getStreamHashes()
       // getStreamData()
-      const StreamData: IstreamData = {
+      const StreamData = {
         streamer: account.address as Hex,
         streamerVault: "0x0000000000000000000000000000000000000000" as Hex,
         recipient: receiver as Hex,
         recipientVault: "0x0000000000000000000000000000000000000000" as Hex,
         token: PYUSD,
         amount: BigInt(amount), // maybe here the amount will be 0.001 because of 6 decimals
-        startingTimestamp: BigInt(
-          Date.parse(startingDate?.toString() as string)
-        ),
+        startingTimestamp: BigInt(Math.floor(new Date(startingDate).getTime() / 1000)),
         duration: BigInt(Number(duration) * 60 * 60 * 1000),
         isPaused: false,
         recurring: false,
-        totalStreamed: 0n,
+        totalStreamed: BigInt(0),
       };
-      const HookData: IHookConfig = {
+      console.log('stream', StreamData)
+      const HookData = {
         callAfterStreamCreated: false,
         callBeforeFundsCollected: false,
         callAfterFundsCollected: false,
@@ -77,12 +78,15 @@ export default function StreamingPaymentCard({
         callAfterStreamUnPaused: false,
       };
 
-      const contractCall = writeContract({
+      writeContract({
         abi: ContractAbi,
         address: CONTRACT_ADDRESS,
         functionName: "setStream",
         args: [StreamData, HookData, streamTag],
       });
+      if(data) {
+        setSuccess(true)
+      }
     } catch (error) {
       console.log("error", { error });
     }
@@ -199,7 +203,8 @@ export default function StreamingPaymentCard({
             className="w-full bg-paypalBlue ont-[family-name:var(--font-geist-sans)] p-6 py-8 rounded-xl hover:bg-PayPalCerulean shadow-md text-lg"
             onClick={InitateNewStream}
           >
-            Start Streaming <ArrowRightIcon className="mr-2 h-4 w-4" />
+           {!success ?  'Start Streaming ' : 'new stream created'}
+           <ArrowRightIcon className="mr-2 h-4 w-4" />
           </Button>
       </CardFooter>
     </Card>

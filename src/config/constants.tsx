@@ -1,6 +1,6 @@
 import { Hex } from "viem";
-export const CONTRACT_ADDRESS = "0xD0478f1E35C3fa992112b1696aC434D1afB12411";
-export const PYUSD  = "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9"
+export const CONTRACT_ADDRESS = "0x6C95f2dB17e6a07ed8f5a7a27A5410088C1dE43A" as Hex;
+export const PYUSD  = "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9" as Hex
 export interface IstreamData {
   streamer: Hex;
   streamerVault: Hex;
@@ -13,6 +13,13 @@ export interface IstreamData {
   totalStreamed: bigint;
   recurring: boolean;
   isPaused: boolean;
+  // methods
+  updateStream?: () => void
+  cancelStream?: () => void
+  // for receiver
+  collectFundsFromStream?: () => void
+  // Add Hooks to currentStream
+  setHookConfigForStream?: () => void
 }
 
 export interface IHookConfig {
