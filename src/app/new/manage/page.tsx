@@ -42,6 +42,7 @@ export default function Manage() {
     })) ?? [],
   })
 
+  console.log('stream', streamsData)
   useEffect(() => {
     console.log('data', streamsData)
     if (hashesLoading || streamsLoading) {

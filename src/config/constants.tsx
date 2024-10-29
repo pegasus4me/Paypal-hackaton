@@ -1,5 +1,5 @@
 import { Hex } from "viem";
-export const CONTRACT_ADDRESS = "0x6C95f2dB17e6a07ed8f5a7a27A5410088C1dE43A" as Hex;
+export const CONTRACT_ADDRESS = "0x175ac96d534ab2c0872563c99c52403d2c097125" as Hex;
 export const PYUSD  = "0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9" as Hex
 export interface IstreamData {
   streamer: Hex;

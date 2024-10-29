@@ -24,13 +24,14 @@ export function Receive({
   lenght,
   startingTimestamp,
 }: Partial<StreamWithHash>) {
+  console.log('amount', duration)
+
   const now = Date.now();
   const { data, writeContract } = useWriteContract();
   const [streamRate, setStreamRate] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [more, setMore] = useState(false);
-  console.log("startingTimestamp", startingTimestamp)
-  const difference = Number(startingTimestamp) < Number(now);
+  const difference = Number(startingTimestamp) < Number(now / 1000);
 
   const collectPYUSD = () => {
     writeContract({
@@ -51,7 +52,7 @@ export function Receive({
   console.log("amountStreamedSoFar", amountStreamedSoFar.data);
   useEffect(() => {
     if (amount && duration) {
-      const ratePerSecond = Number(amount) / (Number(duration) / 1000);
+      const ratePerSecond = Number(amount) / (Number(duration));
       setStreamRate(ratePerSecond);
       setCurrentValue(Number(amount));
     }
@@ -61,8 +62,8 @@ export function Receive({
   const updateCurrentValue = useCallback(() => {
     if (!startingTimestamp || !amount) return;
 
-    const now = Date.now();
-    const start = Number(startingTimestamp) * 1000;
+    const now = Math.floor(Date.now() / 1000);
+    const start = Number(startingTimestamp);
     const total = Number(amount);
     const elapsed = now - start;
 
@@ -75,7 +76,7 @@ export function Receive({
     // Calculate remaining amount
     const streamed = streamRate * (elapsed / 1000);
     const remaining = total - streamed;
-
+    console.log('Math.max(0, remaining', Math.max(0, remaining))
     setCurrentValue(Math.max(0, remaining));
   }, [startingTimestamp, amount, duration, streamRate]);
 
@@ -90,7 +91,7 @@ export function Receive({
   }, [updateCurrentValue]);
 
   // Format the current value for display
-  const formattedValue = currentValue.toFixed(3);
+  const formattedValue = currentValue.toFixed(6);
   return (
     <div>
       <div className="flex items-center gap-2 justify-between">
@@ -136,7 +137,7 @@ export function Receive({
             <div>
               <p className="text-sm text-gray-500">Total Duration</p>
               <p className="font-medium">
-                {(Number(duration) / (1000 * 60 * 60)).toFixed(2)} hours
+                {(Number(duration) / (60 * 60)).toFixed(2)} hours
               </p>
             </div>
             <div>

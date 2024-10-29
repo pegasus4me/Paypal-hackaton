@@ -32,8 +32,7 @@ export default function StreamingPaymentCard({
   ...props
 }: CardProps) {
   const account = useAccount();
-  const { data, isError, isLoading, isSuccess, writeContract } =
-    useWriteContract();
+  const { data, isError, isLoading, isSuccess, writeContract } = useWriteContract();
   const checkBalance = usePyUSD(account.address as Hex);
   const [amount, setAmount] = useState("");
   const [duration, setDuration] = useState("");
@@ -41,6 +40,7 @@ export default function StreamingPaymentCard({
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false)
   // convert time in seconds 
+  console.log('duration', BigInt(Number(duration) * 60 * 60 * 1000))
   // const approuve = useApprouve(CONTRACT_ADDRESS, BigInt(amount))
   const [startingDate, setStartingDate] = useState<Date>();
   const [streamTag, setStreamTag] = useState<string>("");
@@ -57,8 +57,8 @@ export default function StreamingPaymentCard({
         recipientVault: "0x0000000000000000000000000000000000000000" as Hex,
         token: PYUSD,
         amount: BigInt(amount), // maybe here the amount will be 0.001 because of 6 decimals
-        startingTimestamp: BigInt(Math.floor(new Date(startingDate).getTime() / 1000)),
-        duration: BigInt(Number(duration) * 60 * 60 * 1000),
+        startingTimestamp: BigInt(Math.floor(new Date(startingDate as Date).getTime() / 1000)),
+        duration: BigInt(Number(duration) * 60 * 60),
         isPaused: false,
         recurring: false,
         totalStreamed: BigInt(0),

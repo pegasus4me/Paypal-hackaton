@@ -61,7 +61,7 @@ export default function Stream({
   const [streamRate, setStreamRate] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [more, setMore] = useState(false);
-  const difference = Number(startingTimestamp) < Number(now);
+  const difference = Number(startingTimestamp) < Number(now / 1000);
 
 
   // updates
@@ -92,21 +92,23 @@ export default function Stream({
       args:  [hash as Hex]
     })
   }
+
   // Calculate stream rate once when component mounts
   useEffect(() => {
     if (amount && duration) {
-      const ratePerSecond = Number(amount) / (Number(duration) / 1000);
+      const ratePerSecond = Number(amount) / (Number(duration));
       setStreamRate(ratePerSecond);
       setCurrentValue(Number(amount));
     }
   }, [amount, duration]);
 
+
   // Update current value periodically
   const updateCurrentValue = useCallback(() => {
     if (!startingTimestamp || !amount) return;
 
-    const now = Date.now();
-    const start = Number(startingTimestamp) * 1000;
+    const now = Math.floor(Date.now() / 1000);
+    const start = Number(startingTimestamp);
     const total = Number(amount);
     const elapsed = now - start;
 
@@ -181,7 +183,7 @@ export default function Stream({
             <div>
               <p className="text-sm text-gray-500">Total Duration</p>
               <p className="font-medium">
-                {(Number(duration) / (1000 * 60 * 60)).toFixed(2)} hours
+                {(Number(duration) / (60 * 60)).toFixed(2)} hours
               </p>
             </div>
             <div>
