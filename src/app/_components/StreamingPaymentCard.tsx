@@ -27,6 +27,7 @@ import { CiStreamOn } from "react-icons/ci";
 import { DateTimePicker } from "./TimePicker";
 type CardProps = React.ComponentProps<typeof Card>;
 
+export const PYUSD_DECIMALS = 6;
 export default function StreamingPaymentCard({
   className,
   ...props
@@ -40,11 +41,12 @@ export default function StreamingPaymentCard({
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false)
   // convert time in seconds 
-  console.log('duration', BigInt(Number(duration) * 60 * 60 * 1000))
+  console.log('amount', BigInt(amount)  * BigInt(10 ** PYUSD_DECIMALS))
   // const approuve = useApprouve(CONTRACT_ADDRESS, BigInt(amount))
   const [startingDate, setStartingDate] = useState<Date>();
   const [streamTag, setStreamTag] = useState<string>("");
 
+ 
   async function InitateNewStream() {
     try {
       // call the newStream function
@@ -56,12 +58,11 @@ export default function StreamingPaymentCard({
         recipient: receiver as Hex,
         recipientVault: "0x0000000000000000000000000000000000000000" as Hex,
         token: PYUSD,
-        amount: BigInt(amount), // maybe here the amount will be 0.001 because of 6 decimals
+        amount: BigInt(amount)  * BigInt(10 ** PYUSD_DECIMALS), // maybe here the amount will be 0.001 because of 6 decimals
         startingTimestamp: BigInt(Math.floor(new Date(startingDate as Date).getTime() / 1000)),
         duration: BigInt(Number(duration) * 60 * 60),
-        isPaused: false,
-        recurring: false,
         totalStreamed: BigInt(0),
+        recurring: false
       };
       console.log('stream', StreamData)
       const HookData = {
@@ -94,7 +95,7 @@ export default function StreamingPaymentCard({
 
   return (
     <Card
-      className={cn("w-[500px] shadow-none border-none ", className)}
+      className={cn("w-[500px] shadow-none border-none", className)}
       {...props}
     >
       <CardHeader>
@@ -186,7 +187,7 @@ export default function StreamingPaymentCard({
               abi: erc20Abi,
               address: PYUSD,
               functionName: "approve",
-              args: [CONTRACT_ADDRESS, BigInt(amount)],
+              args: [CONTRACT_ADDRESS, BigInt(amount) * BigInt(10 ** PYUSD_DECIMALS)],
             })
           }}
           disabled={isLoading} 

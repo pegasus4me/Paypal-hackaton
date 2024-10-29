@@ -30,7 +30,7 @@ export function Header() {
   return (
     <div className="flex justify-around p-3 text-lg font-[family-name:var(--font-geist-sans)]">
       <div className="flex items-center gap-5">
-        <h1 className="text-3xl font-semibold text-paypalBlue">PyStream</h1>
+        <h1 className="text-3xl font-semibold text-paypalBlue">PayStream</h1>
 
         <div className="flex gap-3 font-geistSans">
           {nav.map((n, key) => {

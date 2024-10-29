@@ -30,3 +30,27 @@ export function millisecondsToHours(ms: bigint) {
     return String(dur)
 }
 
+export function getStreamStatus(starting: number, duration: number) {
+  // Get current time in seconds
+  const now = Math.floor(Date.now() / 1000);
+
+  // Calculate time until start in seconds
+  const timeUntilStart = starting - now;
+
+  // Check if stream has started
+  const isStarted = now >= starting;
+
+  // For live streams (no duration) or unfinished streams
+  let isFinished = false;
+  
+  if (duration !== null) {
+    const endTime = starting + duration;
+    isFinished = now >= endTime;
+  }
+
+  return {
+    isStarted,
+    isFinished,
+    timeUntilStart: Math.max(0, timeUntilStart)
+  };
+}

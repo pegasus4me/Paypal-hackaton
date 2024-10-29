@@ -8,12 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ContractAbi } from "@/config/ABI/contractABI";
-// import {
-//   calculateStreamRate,
-//   getCurrentStreamed,
-//   millisecondsToHours,
-// } from "@/lib";
 import { useCallback, useEffect, useState } from "react";
+import { getStreamStatus } from "@/lib";
 import {
   Dialog,
   DialogContent,
@@ -24,11 +20,11 @@ import {
 } from "@/components/ui/dialog";
 import { DateTimePicker } from "./TimePicker";
 import { Hex } from "viem";
+import { PYUSD_DECIMALS } from "./StreamingPaymentCard";
+import { ADDRESS_ZERO } from "./Receive";
 
 const REFRESH_INTERVAL = 1000; // Update every second
 
-// cancel update
-// manage hooks
 const Audio = ({ started }: { started: boolean }) => {
   return (
     <>
@@ -36,14 +32,13 @@ const Audio = ({ started }: { started: boolean }) => {
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
         <span
           className={`relative inline-flex rounded-full h-2 w-2 ${
-            started ? "bg-green-500" : "bg-blue-500"
+            started ? "bg-red-500" : "bg-green-500"
           }`}
         />
       </span>
     </>
   );
 };
-
 
 interface StreamWithHash extends IstreamData {
   hash: Hex;
@@ -57,13 +52,11 @@ export default function Stream({
   startingTimestamp,
 }: Partial<StreamWithHash>) {
   const now = Date.now();
-  const { data, writeContract } = useWriteContract();
+  const { writeContract } = useWriteContract();
   const [streamRate, setStreamRate] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [more, setMore] = useState(false);
-  const difference = Number(startingTimestamp) < Number(now / 1000);
-
-
+  const status = getStreamStatus(Number(startingTimestamp), Number(duration));
   // updates
   const [newAmount, setNewAmount] = useState("");
   const [newStartingDate, seNewStartingDate] = useState<Date>();
@@ -72,36 +65,70 @@ export default function Stream({
 
   const updateStream = () => {
     writeContract({
-      abi: ContractAbi, 
-      address : CONTRACT_ADDRESS,
-      functionName : 'updateStream', 
-      args:  [
+      abi: ContractAbi,
+      address: CONTRACT_ADDRESS,
+      functionName: "updateStream",
+      args: [
         hash as Hex,
-        BigInt(Number(newAmount)),
+        BigInt(newAmount) * BigInt(10 ** PYUSD_DECIMALS),
         BigInt(Math.floor(new Date(newStartingDate as Date).getTime() / 1000)),
         BigInt(Number(newDuration) * 60 * 60 * 1000),
-        recurring
-      ]
-    })
-  }
+        recurring,
+      ],
+    });
+  };
   const cancelStream = () => {
     writeContract({
-      abi: ContractAbi, 
-      address : CONTRACT_ADDRESS,
-      functionName : 'cancelStream', 
-      args:  [hash as Hex]
-    })
-  }
+      abi: ContractAbi,
+      address: CONTRACT_ADDRESS,
+      functionName: "cancelStream",
+      args: [hash as Hex],
+    });
+  };
 
+  // ********************HOOKS CONFIG**************************
+  const [vault, setVault] = useState<Hex>(ADDRESS_ZERO);
+  const [callBeforeFundsCollected, setcallBeforeFundsCollected] =
+    useState(false);
+  const [callAfterFundsCollected, setcallAfterFundsCollected] = useState(false);
+
+  const addRecipientVault = () => {
+    writeContract({
+      abi: ContractAbi,
+      address: CONTRACT_ADDRESS,
+      functionName: "setVaultForStream",
+      args: [hash as Hex, vault],
+    });
+  };
+  const setHookConfig = () => {
+    const HookData = {
+      callAfterStreamCreated: false,
+      callBeforeFundsCollected: callBeforeFundsCollected,
+      callAfterFundsCollected: callAfterFundsCollected,
+      callBeforeStreamUpdated: false,
+      callAfterStreamUpdated: false,
+      callBeforeStreamClosed: false,
+      callAfterStreamClosed: false,
+      callBeforeStreamPaused: false,
+      callAfterStreamPaused: false,
+      callBeforeStreamUnPaused: false,
+      callAfterStreamUnPaused: false,
+    };
+    writeContract({
+      abi: ContractAbi,
+      address: CONTRACT_ADDRESS,
+      functionName: "setHookConfigForStream",
+      args: [hash as Hex, HookData],
+    });
+  };
   // Calculate stream rate once when component mounts
   useEffect(() => {
     if (amount && duration) {
-      const ratePerSecond = Number(amount) / (Number(duration));
+      const ratePerSecond = Number(amount) / Number(duration);
       setStreamRate(ratePerSecond);
       setCurrentValue(Number(amount));
     }
   }, [amount, duration]);
-
 
   // Update current value periodically
   const updateCurrentValue = useCallback(() => {
@@ -119,7 +146,7 @@ export default function Stream({
     }
 
     // Calculate remaining amount
-    const streamed = streamRate * (elapsed / 1000);
+    const streamed = streamRate * (elapsed);
     const remaining = total - streamed;
 
     setCurrentValue(Math.max(0, remaining));
@@ -136,14 +163,22 @@ export default function Stream({
   }, [updateCurrentValue]);
 
   // Format the current value for display
-  const formattedValue = currentValue.toFixed(3);
+  const format = currentValue / 10 ** PYUSD_DECIMALS;
+  const formattedStreamRate = streamRate / 10 ** PYUSD_DECIMALS;
+  const formattedValue = format.toFixed(6);
 
   return (
-    <div className="border-2 border-paypalMidBlue p-3  rounded-[10px] font-[family-name:var(--font-geist-sans)]">
+    <div className="border-2 mb-5 border-paypalMidBlue p-3  rounded-[10px] font-[family-name:var(--font-geist-sans)]">
       <div className="flex items-center gap-2 justify-between">
         <div className="flex items-center gap-4">
-          <h1>{difference ? "Live stream" : "upcoming stream"}</h1>
-          <Audio started={difference} />
+          <h1>
+            {status.isStarted && !status.isFinished
+              ? "Live stream"
+              : status.isFinished
+              ? "Stream finished"
+              : `stream starting in ${status.timeUntilStart}`}
+          </h1>
+          <Audio started={status.isFinished} />
         </div>
         <div className="flex items-center gap-2">
           <small>view more</small>
@@ -158,11 +193,11 @@ export default function Stream({
           </span>
         </h3>
         <div className="flex gap-7 justify-center items-center">
-          <UseAnimations animation={activity} size={40} color="#009cde" />
-          <p className="font-medium text-paypalMidBlue">
-            {formattedValue} <span className="text-italic">PYUSD</span>
+          {!status.isFinished && <UseAnimations animation={activity} size={40} color="#009cde" />}
+          <p className="font-medium text-paypalMidBlue text-2xl">
+            {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : formattedValue} <span className="text-italic">PYUSD</span>
           </p>
-          <UseAnimations animation={activity} size={40} color="white" />
+          {!status.isFinished && <UseAnimations animation={activity} size={40} color="#009cde" />}
         </div>
         <h3 className="text-paypalBlue">
           to{" "}
@@ -177,7 +212,7 @@ export default function Stream({
             <div>
               <p className="text-sm text-gray-500">Stream Rate</p>
               <p className="font-medium">
-                {streamRate.toFixed(6)} PYUSD/second
+                {formattedStreamRate.toFixed(6)} PYUSD/second
               </p>
             </div>
             <div>
@@ -196,7 +231,7 @@ export default function Stream({
               <p className="text-sm text-gray-500">End Time</p>
               <p className="font-medium">
                 {new Date(
-                  Number(startingTimestamp) * 1000 + Number(duration)
+                  Number(startingTimestamp) * 1000 + (Number(duration) * 1000)
                 ).toLocaleString()}
               </p>
             </div>
@@ -242,27 +277,90 @@ export default function Stream({
                   className="col-span-3"
                 />
 
-               <div className="flex items-center justify-between mt-4">
-               <Label htmlFor="recurring" className="text-left">
-                  Set as Recurring
-                </Label>
-                <input
-                  type="checkbox"
-                  checked={recurring}
-                  onChange={(e) => setRecurring(e.target.checked)}
-                  className=""
+                <div className="flex items-center justify-between mt-4">
+                  <Label htmlFor="recurring" className="text-left">
+                    Set as Recurring
+                  </Label>
+                  <input
+                    type="checkbox"
+                    checked={recurring}
+                    onChange={(e) => setRecurring(e.target.checked)}
+                    className=""
+                  />
+                </div>
+                <Button
+                  className="bg-paypalMidBlue mt-5 shadow-none"
+                  onClick={updateStream}
+                >
+                  update
+                </Button>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+          <Dialog>
+            <DialogTrigger className="mt-5 border px-4 py-2 rounded-lg bg-PayPalCerulean text-white hover:bg-paypalBlue hover:transition-all">
+              Set vault Address (for hooks)
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Vault Address</DialogTitle>
+                <DialogDescription className="mb-5">
+                  Add a Recipient Vault Address
+                </DialogDescription>
+                <Input
+                  placeholder={"vault address"}
+                  onChange={(e) => setVault(e.target.value as Hex)}
+                  className="col-span-3 mt-4"
                 />
-               </div>
-               <Button className="bg-paypalMidBlue mt-5 shadow-none"
-               onClick={updateStream}
-               >update</Button>
+                <div className="flex items-center justify-between mb-5 p-3">
+                  <Label htmlFor="recurring" className="text-left">
+                    Before funds are collected
+                  </Label>
+                  <input
+                    type="checkbox"
+                    checked={callBeforeFundsCollected}
+                    onChange={(e) =>
+                      setcallBeforeFundsCollected(e.target.checked)
+                    }
+                    className=""
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-4 p-3">
+                  <Label htmlFor="recurring" className="text-left">
+                    After funds are collected
+                  </Label>
+                  <input
+                    type="checkbox"
+                    checked={callAfterFundsCollected}
+                    onChange={(e) =>
+                      setcallAfterFundsCollected(e.target.checked)
+                    }
+                    className=""
+                  />
+                </div>
+
+                <Button
+                  className="bg-paypalMidBlue mt-5 shadow-none "
+                  onClick={addRecipientVault}
+                >
+                  set
+                </Button>
+                <Button
+                  className="bg-PayPalCerulean mt-5 shadow-none "
+                  onClick={setHookConfig}
+                >
+                  set Hooks
+                </Button>
               </DialogHeader>
             </DialogContent>
           </Dialog>
           <div className="mt-4">
-          <Button className="border px-4 py-3 rounded-lg bg-paypalMidBlue text-white hover:bg-paypalBlue hover:transition-all"
-               onClick={cancelStream}
-          >Cancel Stream</Button>
+            <Button
+              className="border px-4 py-3 rounded-lg bg-paypalMidBlue text-white hover:bg-paypalBlue hover:transition-all"
+              onClick={cancelStream}
+            >
+              Cancel Stream
+            </Button>
           </div>
         </div>
       )}

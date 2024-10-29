@@ -1,7 +1,5 @@
 "use client"
-import Image from "next/image";
 import StreamingPaymentCard from "../_components/StreamingPaymentCard"
-import img from '../../static/abstract.jpeg'
 
 export default function New() {
   return (
