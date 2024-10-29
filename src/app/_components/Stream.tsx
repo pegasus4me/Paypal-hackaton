@@ -1,5 +1,5 @@
 "use client";
-import { CONTRACT_ADDRESS, IstreamData } from "@/config/constants";
+import { CONTRACT_ADDRESS, IstreamData, PYUSD } from "@/config/constants";
 import { MdExpandMore } from "react-icons/md";
 import { useWriteContract } from "wagmi";
 import UseAnimations from "react-useanimations";
@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DateTimePicker } from "./TimePicker";
-import { Hex } from "viem";
+import { erc20Abi, Hex } from "viem";
 import { PYUSD_DECIMALS } from "./StreamingPaymentCard";
 import { ADDRESS_ZERO } from "./Receive";
 
@@ -250,7 +250,7 @@ export default function Stream({
                   New Amount
                 </Label>
                 <Input
-                  placeholder={String(amount)}
+                  placeholder={String(Number(amount) / 10 ** PYUSD_DECIMALS)}
                   value={newAmount}
                   onChange={(e) => setNewAmount(e.target.value)}
                   className="col-span-3"
@@ -292,6 +292,22 @@ export default function Stream({
                   onClick={updateStream}
                 >
                   update
+                </Button>
+                <Button
+                  className="bg-paypalMidBlue mt-5 shadow-none"
+                  onClick={() => {
+                    writeContract({
+                      abi : erc20Abi,
+                      address : PYUSD,
+                      functionName : 'approve',
+                      args : [
+                        CONTRACT_ADDRESS, 
+                        BigInt(newAmount) / BigInt(10 ** PYUSD_DECIMALS) 
+                      ]
+                    })
+                  }}
+                >
+                  approuve
                 </Button>
               </DialogHeader>
             </DialogContent>

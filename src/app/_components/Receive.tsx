@@ -15,6 +15,7 @@ import { PYUSD_DECIMALS } from "./StreamingPaymentCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Hex } from "viem";
+import { FaLongArrowAltRight } from "react-icons/fa"
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000" as Hex;
 import {
   Dialog,
@@ -160,7 +161,7 @@ export function Receive({
       <div className="flex items-center gap-10 p-2 justify-start ">
         <div className="flex flex-col p-3">
           <p className="font-medium text-paypalMidBlue text-2xl">
-            {formattedValue} <span className="text-italic">PYUSD</span> streamed
+          {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : formattedValue} <span className="text-italic">PYUSD</span>
           </p>
           <h3 className="text-paypalBlue">
             from{" "}
@@ -169,7 +170,7 @@ export function Receive({
             </span>
           </h3>
         </div>
-        <UseAnimations animation={activity} size={40} color="#009cde" />
+        {status.isFinished ? <FaLongArrowAltRight /> : <UseAnimations animation={activity} size={40} color="#009cde" />}
         <h3 className="text-paypalBlue">
           to{" "}
           <span className="text-sm font-semibold text-PayPalCerulean">
