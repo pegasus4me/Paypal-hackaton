@@ -51,7 +51,6 @@ export default function Stream({
   hash,
   startingTimestamp,
 }: Partial<StreamWithHash>) {
-  const now = Date.now();
   const { writeContract } = useWriteContract();
   const [streamRate, setStreamRate] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState(0);

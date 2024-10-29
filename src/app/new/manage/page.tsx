@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useAccount, useReadContracts, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useReadContracts, useReadContract } from "wagmi";
 import { Hex } from "viem";
 import Stream from "@/app/_components/Stream";
 import { CONTRACT_ADDRESS } from "@/config/constants";
@@ -42,7 +42,6 @@ export default function Manage() {
     })) ?? [],
   })
 
-  console.log('stream', streamsData)
   useEffect(() => {
     console.log('data', streamsData)
     if (hashesLoading || streamsLoading) {
@@ -59,7 +58,7 @@ export default function Manage() {
     if (streamsData && hashes) {
       const validStreams = streamsData
         .map((stream, index) => ({
-          ...(stream.result as any),
+          ...(stream.result),
           hash: hashes[index] // Add hash to each stream
         }))
         .filter(Boolean)

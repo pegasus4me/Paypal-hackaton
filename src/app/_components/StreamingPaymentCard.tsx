@@ -6,11 +6,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useWriteContract } from "wagmi";
 import { useAccount } from "wagmi";
-import { erc20Abi, Hex, isAddress } from "viem";
-import { useApprouve } from "@/hooks/useApprouve";
+import { erc20Abi, Hex } from "viem";
 import { CONTRACT_ADDRESS } from "@/config/constants";
 import { ContractAbi } from "@/config/ABI/contractABI";
-import { IstreamData, IHookConfig } from "@/config/constants";
 import { PYUSD } from "@/config/constants";
 import usePyUSD from "@/hooks/usePyBalance";
 import {

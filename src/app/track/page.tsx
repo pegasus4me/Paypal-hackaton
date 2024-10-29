@@ -61,7 +61,7 @@ export default function New() {
     if (streamsData && hashes) {
       const validStreams = streamsData
         .map((stream, index) => ({
-          ...(stream.result as any),
+          ...(stream.result),
           hash: hashes[index] // Add hash to each stream
         }))
         .filter(Boolean)

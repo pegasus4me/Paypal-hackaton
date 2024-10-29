@@ -9,14 +9,13 @@ import { ContractAbi } from "@/config/ABI/contractABI";
 import { CONTRACT_ADDRESS } from "@/config/constants";
 import UseAnimations from "react-useanimations";
 import activity from "react-useanimations/lib/activity";
-import { IoRefresh } from "react-icons/io5"
-import { erc20Abi, Hex } from "viem";
+import { IoRefresh } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { PYUSD_DECIMALS } from "./StreamingPaymentCard";
-import { PYUSD } from "@/config/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-export const ADDRESS_ZERO='0x0000000000000000000000000000000000000000' as Hex
+import { Hex } from "viem";
+export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000" as Hex;
 import {
   Dialog,
   DialogContent,
@@ -24,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"; 
+} from "@/components/ui/dialog";
 import { getStreamStatus } from "@/lib";
 const REFRESH_INTERVAL = 1000; // Update every second
 
@@ -36,16 +35,11 @@ export function Receive({
   hash,
   startingTimestamp,
 }: Partial<StreamWithHash>) {
-
-  const now = Date.now();
   const status = getStreamStatus(Number(startingTimestamp), Number(duration));
   const { writeContract } = useWriteContract();
   const [streamRate, setStreamRate] = useState<number>(0);
   const [currentValue, setCurrentValue] = useState(0);
   const [more, setMore] = useState(false);
-  
-  const difference = Number(startingTimestamp) < Number(now / 1000);
-  
 
   // Calculate stream rate once when component mounts
 
@@ -56,31 +50,28 @@ export function Receive({
     args: [hash as Hex],
     query: {
       refetchInterval: 1000, // Refetch every second
-    }
+    },
   });
 
-
   // ********************HOOKS CONFIG**************************
-  const [vault, setVault] = useState<Hex>(ADDRESS_ZERO)
-  const [callBeforeFundsCollected, setcallBeforeFundsCollected] = useState(false)
-  const [callAfterFundsCollected, setcallAfterFundsCollected] = useState(false)
+  const [vault, setVault] = useState<Hex>(ADDRESS_ZERO);
+  const [callBeforeFundsCollected, setcallBeforeFundsCollected] =
+    useState(false);
+  const [callAfterFundsCollected, setcallAfterFundsCollected] = useState(false);
 
   const addRecipientVault = () => {
     writeContract({
       abi: ContractAbi,
       address: CONTRACT_ADDRESS,
-      functionName: 'setVaultForStream',
-      args: [hash as Hex,
-        vault
-      ],
-    })
-  }
+      functionName: "setVaultForStream",
+      args: [hash as Hex, vault],
+    });
+  };
   const setHookConfig = () => {
-
     const HookData = {
       callAfterStreamCreated: false,
-      callBeforeFundsCollected : callBeforeFundsCollected,
-      callAfterFundsCollected : callAfterFundsCollected,
+      callBeforeFundsCollected: callBeforeFundsCollected,
+      callAfterFundsCollected: callAfterFundsCollected,
       callBeforeStreamUpdated: false,
       callAfterStreamUpdated: false,
       callBeforeStreamClosed: false,
@@ -89,20 +80,19 @@ export function Receive({
       callAfterStreamPaused: false,
       callBeforeStreamUnPaused: false,
       callAfterStreamUnPaused: false,
-    }
+    };
     writeContract({
       abi: ContractAbi,
       address: CONTRACT_ADDRESS,
-      functionName: 'setHookConfigForStream',
-      args: [hash as Hex,
-        HookData
-      ],
-    })
-  }
+      functionName: "setHookConfigForStream",
+      args: [hash as Hex, HookData],
+    });
+  };
 
   useEffect(() => {
     if (amount && duration) {
-      const ratePerSecond = (Number(amount) / 10 ** PYUSD_DECIMALS) / (Number(duration));
+      const ratePerSecond =
+        Number(amount) / 10 ** PYUSD_DECIMALS / Number(duration);
       setStreamRate(ratePerSecond);
       setCurrentValue(Number(amount) / 10 ** PYUSD_DECIMALS);
     }
@@ -124,9 +114,9 @@ export function Receive({
     }
 
     // Calculate remaining amount
-    const streamed = streamRate * (elapsed);
+    const streamed = streamRate * elapsed;
     const remaining = total - streamed;
-    console.log('Math.max(0, remaining', Math.max(0, remaining))
+    console.log("Math.max(0, remaining", Math.max(0, remaining));
     setCurrentValue(Math.max(0, remaining));
   }, [startingTimestamp, amount, duration, streamRate]);
 
@@ -141,17 +131,20 @@ export function Receive({
   }, [updateCurrentValue]);
 
   // Format the current value for display
-  const format = currentValue
-  const formattedStreamRate = streamRate
+  const format = currentValue;
+  const formattedStreamRate = streamRate;
   const formattedValue = format.toFixed(6);
-  const amountClamaible = (Number(amountStreamedSoFar.data?.[0]) + Number(amountStreamedSoFar.data?.[1])) / 10 ** PYUSD_DECIMALS;
+  const amountClamaible =
+    (Number(amountStreamedSoFar.data?.[0]) +
+      Number(amountStreamedSoFar.data?.[1])) /
+    10 ** PYUSD_DECIMALS;
   const formattedValueClamaible = amountClamaible.toFixed(6);
 
   return (
     <div className="mb-5">
       <div className="flex items-center gap-2 justify-between">
         <div className="flex items-center gap-4">
-        <h1>
+          <h1>
             {status.isStarted && !status.isFinished
               ? "Live stream"
               : status.isFinished
@@ -207,10 +200,18 @@ export function Receive({
             </div>
             <div>
               <p className="text-sm text-gray-500">PYUSD Clamaible so far</p>
-             <div className="flex items-center gap-3">
-             <p className="font-medium">{formattedValueClamaible} / <span className="text-PayPalCerulean">{Number(amount) / 10 ** PYUSD_DECIMALS} PYUSD</span></p>
-             <IoRefresh onClick={() => amountStreamedSoFar} className="cursor-pointer" />
-             </div>
+              <div className="flex items-center gap-3">
+                <p className="font-medium">
+                  {formattedValueClamaible} /{" "}
+                  <span className="text-PayPalCerulean">
+                    {Number(amount) / 10 ** PYUSD_DECIMALS} PYUSD
+                  </span>
+                </p>
+                <IoRefresh
+                  onClick={() => amountStreamedSoFar}
+                  className="cursor-pointer"
+                />
+              </div>
               <div className="mt-4">
                 <Button
                   className="border px-4 py-3 rounded-lg bg-paypalMidBlue text-white hover:bg-paypalBlue hover:transition-all"
@@ -247,40 +248,49 @@ export function Receive({
                   Add a Recipient Vault Address
                 </DialogDescription>
                 <Input
-                  placeholder={'vault address'}
+                  placeholder={"vault address"}
                   onChange={(e) => setVault(e.target.value as Hex)}
                   className="col-span-3 mt-4"
                 />
-              <div className="flex items-center justify-between mb-5 p-3">
-               <Label htmlFor="recurring" className="text-left">
-                 Before funds are collected
+                <div className="flex items-center justify-between mb-5 p-3">
+                  <Label htmlFor="recurring" className="text-left">
+                    Before funds are collected
+                  </Label>
+                  <input
+                    type="checkbox"
+                    checked={callBeforeFundsCollected}
+                    onChange={(e) =>
+                      setcallBeforeFundsCollected(e.target.checked)
+                    }
+                    className=""
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-4 p-3">
+                  <Label htmlFor="recurring" className="text-left">
+                    After funds are collected
+                  </Label>
+                  <input
+                    type="checkbox"
+                    checked={callAfterFundsCollected}
+                    onChange={(e) =>
+                      setcallAfterFundsCollected(e.target.checked)
+                    }
+                    className=""
+                  />
+                </div>
 
-                </Label>
-                <input
-                  type="checkbox"
-                  checked={callBeforeFundsCollected}
-                  onChange={(e) => setcallBeforeFundsCollected(e.target.checked)}
-                  className=""
-                />
-               </div>
-               <div className="flex items-center justify-between mt-4 p-3">
-               <Label htmlFor="recurring" className="text-left">
-                 After funds are collected
-                </Label>
-                <input
-                  type="checkbox"
-                  checked={callAfterFundsCollected}
-                  onChange={(e) => setcallAfterFundsCollected(e.target.checked)}
-                  className=""
-                />
-               </div>
-              
-               <Button className="bg-paypalMidBlue mt-5 shadow-none "
-               onClick={addRecipientVault}
-               >set</Button>
-                <Button className="bg-PayPalCerulean mt-5 shadow-none "
-               onClick={setHookConfig}
-               >set Hooks</Button>
+                <Button
+                  className="bg-paypalMidBlue mt-5 shadow-none "
+                  onClick={addRecipientVault}
+                >
+                  set
+                </Button>
+                <Button
+                  className="bg-PayPalCerulean mt-5 shadow-none "
+                  onClick={setHookConfig}
+                >
+                  set Hooks
+                </Button>
               </DialogHeader>
             </DialogContent>
           </Dialog>
