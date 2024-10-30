@@ -43,7 +43,7 @@ export default function New() {
         args: [hash],
       })) ?? [],
   });
-  console.log("hash", streamsData);
+  console.log("Hash", hashes);
 
   useEffect(() => {
     console.log("data", streamsData);
