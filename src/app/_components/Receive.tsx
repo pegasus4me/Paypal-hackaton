@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Hex } from "viem";
 import { FaLongArrowAltRight } from "react-icons/fa"
-export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000" as Hex;
+import { Audio } from "./Stream";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getStreamStatus } from "@/lib";
+
 const REFRESH_INTERVAL = 1000; // Update every second
+export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000" as Hex;
 
 export function Receive({
   amount,
@@ -56,10 +58,11 @@ export function Receive({
 
   // ********************HOOKS CONFIG**************************
   const [vault, setVault] = useState<Hex>(ADDRESS_ZERO);
-  const [callBeforeFundsCollected, setcallBeforeFundsCollected] =
-    useState(false);
+  const [
+    callBeforeFundsCollected, 
+    setcallBeforeFundsCollected
+  ] = useState(false);
   const [callAfterFundsCollected, setcallAfterFundsCollected] = useState(false);
-
   const addRecipientVault = () => {
     writeContract({
       abi: ContractAbi,
@@ -117,7 +120,6 @@ export function Receive({
     // Calculate remaining amount
     const streamed = streamRate * elapsed;
     const remaining = total - streamed;
-    console.log("Math.max(0, remaining", Math.max(0, remaining));
     setCurrentValue(Math.max(0, remaining));
   }, [startingTimestamp, amount, duration, streamRate]);
 
@@ -139,29 +141,30 @@ export function Receive({
     (Number(amountStreamedSoFar.data?.[0]) +
       Number(amountStreamedSoFar.data?.[1])) /
     10 ** PYUSD_DECIMALS;
-  const formattedValueClamaible = amountClamaible.toFixed(6);
+  const formattedValueClamaible = amountClamaible.toFixed(6)
 
   return (
-    <div className="mb-5">
+    <div className="border mt-4 p-2 bg-paypalBlue/5">
       <div className="flex items-center gap-2 justify-between">
         <div className="flex items-center gap-4">
-          <h1>
+          <h1 className="font-semibold text-paypalMidBlue">
             {status.isStarted && !status.isFinished
               ? "Live stream"
               : status.isFinished
               ? "Stream finished"
               : `stream starting in ${status.timeUntilStart}`}
           </h1>
+          <Audio started={status.isFinished} />
         </div>
         <div className="flex items-center gap-2">
-          <small>view more</small>
+          <small className="font-medium text-paypalBlue">view more</small>
           <MdExpandMore onClick={() => setMore(!more)} />
         </div>
       </div>
-      <div className="flex items-center gap-10 p-2 justify-start ">
+      <div className="flex items-center gap-10 p-2 justify-start">
         <div className="flex flex-col p-3">
           <p className="font-medium text-paypalMidBlue text-2xl">
-          {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : formattedValue} <span className="text-italic">PYUSD</span>
+          {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : formattedValue} <span className="italic">PYUSD</span>
           </p>
           <h3 className="text-paypalBlue">
             from{" "}
@@ -171,12 +174,14 @@ export function Receive({
           </h3>
         </div>
         {status.isFinished ? <FaLongArrowAltRight /> : <UseAnimations animation={activity} size={40} color="#009cde" />}
+        <div>
         <h3 className="text-paypalBlue">
           to{" "}
           <span className="text-sm font-semibold text-PayPalCerulean">
             {recipient?.slice(0, 5) + "..." + recipient?.slice(38, 42)} (you)
           </span>
         </h3>
+        </div>
       </div>
       {more && (
         <div className="mt-4 p-4 bg-gray-50 rounded">
@@ -233,7 +238,7 @@ export function Receive({
               <p className="text-sm text-gray-500">End Time</p>
               <p className="font-medium">
                 {new Date(
-                  Number(startingTimestamp) * 1000 + Number(duration)
+                  Number(startingTimestamp) * 1000 + Number(duration) * 1000
                 ).toLocaleString()}
               </p>
             </div>

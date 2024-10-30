@@ -25,7 +25,7 @@ import { ADDRESS_ZERO } from "./Receive";
 
 const REFRESH_INTERVAL = 1000; // Update every second
 
-const Audio = ({ started }: { started: boolean }) => {
+export const Audio = ({ started }: { started: boolean }) => {
   return (
     <>
       <span className="relative flex h-2 w-2 mr-2">
@@ -167,10 +167,10 @@ export default function Stream({
   const formattedValue = format.toFixed(6);
 
   return (
-    <div className="border-2 mb-5 border-paypalMidBlue p-3  rounded-[10px] font-[family-name:var(--font-geist-sans)]">
+    <div className=" mt-4 bg-paypalMidBlue/5 p-2">
       <div className="flex items-center gap-2 justify-between">
         <div className="flex items-center gap-4">
-          <h1>
+          <h1 className="font-semibold text-paypalMidBlue">
             {status.isStarted && !status.isFinished
               ? "Live stream"
               : status.isFinished
@@ -180,7 +180,7 @@ export default function Stream({
           <Audio started={status.isFinished} />
         </div>
         <div className="flex items-center gap-2">
-          <small>view more</small>
+          <small className="font-medium text-paypalBlue">view more</small>
           <MdExpandMore onClick={() => setMore(!more)} />
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function Stream({
         <div className="flex gap-7 justify-center items-center">
           {!status.isFinished && <UseAnimations animation={activity} size={40} color="#009cde" />}
           <p className="font-medium text-paypalMidBlue text-2xl">
-            {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : formattedValue} <span className="text-italic">PYUSD</span>
+            {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : status.timeUntilStart !== 0 ? 'starting soon' : formattedValue} <span className="italic">{status.timeUntilStart === 0 && 'PYUSD' }</span>
           </p>
           {!status.isFinished && <UseAnimations animation={activity} size={40} color="#009cde" />}
         </div>
@@ -206,7 +206,7 @@ export default function Stream({
         </h3>
       </div>
       {more && (
-        <div className="mt-4 p-4 bg-gray-50 rounded">
+        <div className="mt-4 p-2 bg-paypalBlue/5">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">Stream Rate</p>

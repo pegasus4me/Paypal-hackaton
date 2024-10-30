@@ -5,6 +5,7 @@ import Image from "next/image";
 import pyUsd from "../../static/PYSUD.png";
 import Link from "next/link";
 import { Hex } from "viem";
+import paystream from '../../static/Paystream.png'
 export function Header() {
   const account = useAccount();
   const user_balance = usePyUSD(account.address as Hex);
@@ -30,7 +31,7 @@ export function Header() {
   return (
     <div className="flex justify-around p-3 text-lg font-[family-name:var(--font-geist-sans)]">
       <div className="flex items-center gap-5">
-        <h1 className="text-3xl font-semibold text-paypalBlue">PayStream</h1>
+     <Image src={paystream} alt="paystream" width={200}/>
 
         <div className="flex gap-3 font-geistSans">
           {nav.map((n, key) => {

@@ -19,65 +19,72 @@ export default function New() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const {address} = useAccount()
+  const { address } = useAccount();
   const {
     data: hashes,
     isError: hashesError,
     isLoading: hashesLoading,
   } = useReadContract({
-    abi: ContractAbi, 
-    functionName : 'getRecipientStreamHashes',
+    abi: ContractAbi,
+    functionName: "getRecipientStreamHashes",
     address: CONTRACT_ADDRESS,
-    args : [address as Hex]
-  })
- console.log('hash', hashes)
+    args: [address as Hex],
+  });
   const {
     data: streamsData,
     isError: streamsError,
-    isLoading: streamsLoading
+    isLoading: streamsLoading,
   } = useReadContracts({
-    contracts: (hashes as Hex[])?.map((hash) => ({
-      address: CONTRACT_ADDRESS,
-      abi: ContractAbi,
-      functionName: 'getStreamData',
-      args: [hash],
-    })) ?? [],
-  })
-  console.log('hash', streamsData)
+    contracts:
+      (hashes as Hex[])?.map((hash) => ({
+        address: CONTRACT_ADDRESS,
+        abi: ContractAbi,
+        functionName: "getStreamData",
+        args: [hash],
+      })) ?? [],
+  });
+  console.log("hash", streamsData);
 
   useEffect(() => {
-    console.log('data', streamsData)
+    console.log("data", streamsData);
     if (hashesLoading || streamsLoading) {
-      setIsLoading(true)
-      return
+      setIsLoading(true);
+      return;
     }
 
     if (hashesError || streamsError) {
-      setError('Failed to fetch stream data')
-      setIsLoading(false)
-      return
+      setError("Failed to fetch stream data");
+      setIsLoading(false);
+      return;
     }
 
     if (streamsData && hashes) {
       const validStreams = streamsData
         .map((stream, index) => ({
-          ...(stream.result),
-          hash: hashes[index] // Add hash to each stream
+          ...stream.result,
+          hash: hashes[index], // Add hash to each stream
         }))
-        .filter(Boolean)
+        .filter(Boolean);
 
-      setStreams(validStreams)
+      setStreams(validStreams);
     }
 
-    setIsLoading(false)
-  }, [hashesLoading, streamsLoading, hashesError, streamsError, streamsData, hashes])
+    setIsLoading(false);
+  }, [
+    hashesLoading,
+    streamsLoading,
+    hashesError,
+    streamsError,
+    streamsData,
+    hashes,
+  ]);
 
   if (isLoading) {
     return (
       <div className="max-w-[60%] mx-auto border p-5 mt-10">
         <p>Loading income streams...</p>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -85,7 +92,7 @@ export default function New() {
       <div className="max-w-[60%] mx-auto border p-5 mt-10">
         <p className="text-red-500">Error: {error}</p>
       </div>
-    )
+    );
   }
 
   if (streams.length === 0) {
@@ -93,11 +100,12 @@ export default function New() {
       <div className="max-w-[60%] mx-auto border p-5 mt-10">
         <p>No active income streams found</p>
       </div>
-    )
+    );
   }
   return (
     <div className="max-w-[60%] mx-auto border p-5 mt-10">
-      {streams.map((streamData: StreamWithHash, index) => (
+     <div>
+     {streams.map((streamData: StreamWithHash, index) => (
         <Receive
           key={index}
           lenght={streams.length}
@@ -110,6 +118,7 @@ export default function New() {
           recurring={streamData.recurring}
         />
       ))}
+     </div>
     </div>
   );
 }

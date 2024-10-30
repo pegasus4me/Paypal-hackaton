@@ -66,6 +66,13 @@ export const ContractAbi = [
    },
    {
       "inputs":[
+         
+      ],
+      "name":"PayStreams__InvalidUpdateParams",
+      "type":"error"
+   },
+   {
+      "inputs":[
          {
             "internalType":"bytes32",
             "name":"streamHash",
