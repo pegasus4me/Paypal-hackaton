@@ -31,7 +31,7 @@ export default function StreamingPaymentCard({
   ...props
 }: CardProps) {
   const account = useAccount();
-  const { data, isError, isLoading, isSuccess, writeContract } = useWriteContract();
+  const { data, isError, isSuccess, writeContract } = useWriteContract();
   const checkBalance = usePyUSD(account.address as Hex);
   const [amount, setAmount] = useState("");
   const [duration, setDuration] = useState("");
@@ -188,11 +188,8 @@ export default function StreamingPaymentCard({
               args: [CONTRACT_ADDRESS, BigInt(amount) * BigInt(10 ** PYUSD_DECIMALS)],
             })
           }}
-          disabled={isLoading} 
         >
-          {isLoading
-            ? "Approving..."
-            : isSuccess
+          {  isSuccess
             ? "Approved!"
             : isError
             ? "Error"
