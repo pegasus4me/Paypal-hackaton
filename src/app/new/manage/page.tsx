@@ -8,7 +8,7 @@ import { ContractAbi } from "@/config/ABI/contractABI";
 import { IstreamData } from "@/config/constants";
 
 export interface StreamWithHash extends IstreamData {
-  lenght?: number
+  lenght?: number;
   hash: Hex;
 }
 
@@ -32,49 +32,58 @@ export default function Manage() {
   const {
     data: streamsData,
     isError: streamsError,
-    isLoading: streamsLoading
+    isLoading: streamsLoading,
   } = useReadContracts({
-    contracts: (hashes as Hex[])?.map((hash) => ({
-      address: CONTRACT_ADDRESS,
-      abi: ContractAbi,
-      functionName: 'getStreamData',
-      args: [hash],
-    })) ?? [],
-  })
+    contracts:
+      (hashes as Hex[])?.map((hash) => ({
+        address: CONTRACT_ADDRESS,
+        abi: ContractAbi,
+        functionName: "getStreamData",
+        args: [hash],
+      })) ?? [],
+  });
 
   useEffect(() => {
-    console.log('data', streamsData)
+    console.log("data", streamsData);
     if (hashesLoading || streamsLoading) {
-      setIsLoading(true)
-      return
+      setIsLoading(true);
+      return;
     }
 
     if (hashesError || streamsError) {
-      setError('Failed to fetch stream data')
-      setIsLoading(false)
-      return
+      setError("Failed to fetch stream data");
+      setIsLoading(false);
+      return;
     }
 
     if (streamsData && hashes) {
       const validStreams = streamsData
         .map((stream, index) => ({
-          ...(stream.result),
-          hash: hashes[index] // Add hash to each stream
+          // @ts-expect-error expect spread only be created from object types
+          ...stream.result,
+          hash: hashes[index], // Add hash to each stream
         }))
-        .filter(Boolean)
+        .filter(Boolean);
 
-      setStreams(validStreams)
+      setStreams(validStreams);
     }
 
-    setIsLoading(false)
-  }, [hashesLoading, streamsLoading, hashesError, streamsError, streamsData, hashes])
+    setIsLoading(false);
+  }, [
+    hashesLoading,
+    streamsLoading,
+    hashesError,
+    streamsError,
+    streamsData,
+    hashes,
+  ]);
 
   if (isLoading) {
     return (
       <div className="max-w-[60%] mx-auto border p-5 mt-10">
         <p>Loading streams...</p>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -82,7 +91,7 @@ export default function Manage() {
       <div className="max-w-[60%] mx-auto border p-5 mt-10">
         <p className="text-red-500">Error: {error}</p>
       </div>
-    )
+    );
   }
 
   if (streams.length === 0) {
@@ -90,7 +99,7 @@ export default function Manage() {
       <div className="max-w-[60%] mx-auto border p-5 mt-10">
         <p>No active streams found</p>
       </div>
-    )
+    );
   }
 
   return (
