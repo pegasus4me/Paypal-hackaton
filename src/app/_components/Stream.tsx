@@ -62,6 +62,7 @@ export default function Stream({
   const [newDuration, setNewDuration] = useState("");
   const [recurring, setRecurring] = useState(false);
 
+  console.log('fods', (Math.floor(new Date(newStartingDate as Date).getTime() / 1000)))
   const updateStream = () => {
     writeContract({
       abi: ContractAbi,
@@ -71,7 +72,7 @@ export default function Stream({
         hash as Hex,
         BigInt(newAmount) * BigInt(10 ** PYUSD_DECIMALS),
         BigInt(Math.floor(new Date(newStartingDate as Date).getTime() / 1000)),
-        BigInt(Number(newDuration) * 60 * 60 * 1000),
+        BigInt(Number(newDuration) * 60 * 60 ),
         recurring,
       ],
     });
@@ -291,7 +292,7 @@ export default function Stream({
                   className="bg-paypalMidBlue mt-5 shadow-none"
                   onClick={updateStream}
                 >
-                  update
+                  update stream
                 </Button>
                 <Button
                   className="bg-paypalMidBlue mt-5 shadow-none"
@@ -302,12 +303,12 @@ export default function Stream({
                       functionName : 'approve',
                       args : [
                         CONTRACT_ADDRESS, 
-                        BigInt(newAmount) / BigInt(10 ** PYUSD_DECIMALS) 
+                        BigInt(Math.floor(Number(newAmount))) / BigInt(10 ** PYUSD_DECIMALS) 
                       ]
                     })
                   }}
                 >
-                  approuve
+                  approuve PYUSD
                 </Button>
               </DialogHeader>
             </DialogContent>

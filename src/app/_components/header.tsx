@@ -31,7 +31,7 @@ export function Header() {
   return (
     <div className="flex justify-around p-3 text-lg font-[family-name:var(--font-geist-sans)]">
       <div className="flex items-center gap-5">
-     <Image src={paystream} alt="paystream" width={200}/>
+     <Image src={paystream} alt="paystream" width={200} quality={100}/>
 
         <div className="flex gap-3 font-geistSans">
           {nav.map((n, key) => {
@@ -50,7 +50,7 @@ export function Header() {
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <small>{Number(user_balance) ? (Number(user_balance) / 1_000_000).toLocaleString() : '..' }</small>
+          <small>{Number(user_balance) ? (Number(user_balance) / 1_000_000).toLocaleString() : '-' }</small>
           <Image src={pyUsd} width={20} height={20} alt="pyusd_logo" />
         </div>
         <w3m-button />

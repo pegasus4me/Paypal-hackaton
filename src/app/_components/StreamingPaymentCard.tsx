@@ -39,7 +39,7 @@ export default function StreamingPaymentCard({
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false)
   // convert time in seconds 
-  console.log('amount', BigInt(amount)  * BigInt(10 ** PYUSD_DECIMALS))
+  console.log('amount', BigInt(Math.floor(Number(amount)))  * BigInt(10 ** PYUSD_DECIMALS))
   // const approuve = useApprouve(CONTRACT_ADDRESS, BigInt(amount))
   const [startingDate, setStartingDate] = useState<Date>();
   const [streamTag, setStreamTag] = useState<string>("");
@@ -56,13 +56,13 @@ export default function StreamingPaymentCard({
         recipient: receiver as Hex,
         recipientVault: "0x0000000000000000000000000000000000000000" as Hex,
         token: PYUSD,
-        amount: BigInt(amount)  * BigInt(10 ** PYUSD_DECIMALS), // maybe here the amount will be 0.001 because of 6 decimals
+        amount: BigInt(Math.floor(Number(amount)))  * BigInt(10 ** PYUSD_DECIMALS), // maybe here the amount will be 0.001 because of 6 decimals
         startingTimestamp: BigInt(Math.floor(new Date(startingDate as Date).getTime() / 1000)),
         duration: BigInt(Number(duration) * 60 * 60),
         totalStreamed: BigInt(0),
         recurring: false
       };
-      console.log('stream', StreamData)
+     
       const HookData = {
         callAfterStreamCreated: false,
         callBeforeFundsCollected: false,
@@ -112,6 +112,7 @@ export default function StreamingPaymentCard({
           >
             Total Amount
           </Label>
+          <small>for testing purposes only an integer value</small>
           <Input
             id="amount"
             className={`${error && "border-2 border-red-500"} `}
@@ -141,6 +142,13 @@ export default function StreamingPaymentCard({
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
           />
+          <Label
+            htmlFor="receiver"
+            className="text-lg font-[family-name:var(--font-geist-sans)]"
+          >
+            Starting date
+          </Label>
+          <small>Never set the starting date as the same hour as now</small>
           <DateTimePicker
             date={new Date()}
             setDate={(date: Date) => {
@@ -185,7 +193,7 @@ export default function StreamingPaymentCard({
               abi: erc20Abi,
               address: PYUSD,
               functionName: "approve",
-              args: [CONTRACT_ADDRESS, BigInt(amount) * BigInt(10 ** PYUSD_DECIMALS)],
+              args: [CONTRACT_ADDRESS, BigInt(Math.floor(Number(amount))) * BigInt(10 ** PYUSD_DECIMALS)],
             })
           }}
         >

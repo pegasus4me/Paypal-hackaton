@@ -143,6 +143,7 @@ export function Receive({
     10 ** PYUSD_DECIMALS;
   const formattedValueClamaible = amountClamaible.toFixed(6)
 
+  console.log('status', status)
   return (
     <div className="border mt-4 p-2 bg-paypalBlue/5">
       <div className="flex items-center gap-2 justify-between">
@@ -164,7 +165,7 @@ export function Receive({
       <div className="flex items-center gap-10 p-2 justify-start">
         <div className="flex flex-col p-3">
           <p className="font-medium text-paypalMidBlue text-2xl">
-          {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : formattedValue} <span className="italic">PYUSD</span>
+          {status.isFinished ? Number(amount) / 10 ** PYUSD_DECIMALS : status.timeUntilStart !== 0 ? 'starting soon' : formattedValue} <span className="italic">{status.timeUntilStart === 0 && 'PYUSD' }</span>
           </p>
           <h3 className="text-paypalBlue">
             from{" "}
@@ -173,7 +174,7 @@ export function Receive({
             </span>
           </h3>
         </div>
-        {status.isFinished ? <FaLongArrowAltRight /> : <UseAnimations animation={activity} size={40} color="#009cde" />}
+        {status.isFinished ? <FaLongArrowAltRight /> : status.timeUntilStart !== 0 ? '' : <UseAnimations animation={activity} size={40} color="#009cde" />}
         <div>
         <h3 className="text-paypalBlue">
           to{" "}
