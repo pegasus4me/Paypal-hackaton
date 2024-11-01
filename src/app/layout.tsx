@@ -4,7 +4,6 @@ import "./globals.css";
 import { headers } from "next/headers";
 import { Header } from "./_components/header";
 import ContextProvider from "../context/ContextProvider";
-import ScreenManager from "@/lib/screenWrapper";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
