@@ -8,6 +8,9 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+	screens : {
+		'match' : '868px'
+	},
   	extend: {
   		colors: {
   			paypalBlue: '#003087',
@@ -21,6 +24,5 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
 };
 export default config;

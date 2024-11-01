@@ -143,7 +143,7 @@ export function Receive({
     10 ** PYUSD_DECIMALS;
   const formattedValueClamaible = amountClamaible.toFixed(6)
 
-  console.log('status', status)
+  console.log('status', hash)
   return (
     <div className="border mt-4 p-2 bg-paypalBlue/5">
       <div className="flex items-center gap-2 justify-between">
